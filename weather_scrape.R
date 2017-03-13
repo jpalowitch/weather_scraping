@@ -31,6 +31,7 @@ weather_scrape <- function (years = c(2017), months = c(1),
                        "Month" = numeric(sum(ndays)),
                        "Year" = numeric(sum(ndays)),
                        "Day" = numeric(sum(ndays)),
+                       "DOY" = numeric(sum(ndays)),
                        stringsAsFactors = FALSE)
   precipTypes <- c("Fog", "Rain", "Snow")
   # Url suffix/prefix
@@ -48,10 +49,13 @@ weather_scrape <- function (years = c(2017), months = c(1),
         for (day in 1:monthDays[m]) { 
           
           # Preliminaries
+          DOY <- ifelse(month > 1, sum(monthDays[1:(month - 1)]), 0) + day
           dfpos <- (y - 1) * sum(monthDays[months]) + 
             ifelse(m > 1, sum(monthDays[months[1:(m - 1)]]), 0) + day
           dateStr <- file.path(year, month, day)
           if (verbose) cat("scraping", dateStr, "\n")
+          
+          
           
           # Data table
           url <- paste0(urlsuff, dateStr, urlpref)
@@ -78,6 +82,7 @@ weather_scrape <- function (years = c(2017), months = c(1),
           fulldf[dfpos, "Month"] <- month
           fulldf[dfpos, "Year"] <- year
           fulldf[dfpos, "Day"] <- day
+          fulldf[dfpos, "DOY"] <- DOY
             
           if (year == currentDate[1] && month == currentDate[2] && day == currentDate[3])
             break
@@ -93,4 +98,10 @@ weather_scrape <- function (years = c(2017), months = c(1),
   
   return(fulldf)
   
+}
+
+# Usage
+if (FALSE) {
+  fulldata <- weather_scrape(years = 2010:2017, months = 1:3)
+  save(fulldata, file = "testdata.RData")
 }
